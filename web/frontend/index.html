@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>政策问答助手</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Markdown解析库 -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- 代码高亮库 -->
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.min.css">
+</head>
+
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🏛️ 政策问答助手</h1>
+            <p class="subtitle">基于RAG检索与用户画像的智能问答系统</p>
+        </header>
+
+        <div class="chat-container">
+            <div class="chat-messages" id="chatMessages">
+                <div class="welcome-message">
+                    <div class="message assistant-message">
+                        <div class="message-content">
+                            <div class="message-text">
+                                您好！我是政策问答助手，可以为您解答各类政策相关问题。请输入您的问题，我会结合知识库为您提供准确的答案。
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-area">
+                <div class="input-container">
+                    <textarea id="messageInput" placeholder="请输入您的政策问题..." rows="3" maxlength="1000"></textarea>
+                    <button id="sendButton" class="send-button">
+                        <span class="send-text">发送</span>
+                        <span class="loading-spinner" style="display: none;">⏳</span>
+                    </button>
+                </div>
+                <div class="input-footer">
+                    <span class="char-count">0/1000</span>
+                    <span class="tips">💡 支持政策咨询</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 思考过程模态框 -->
+        <div id="thinkingModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>🤔 AI思考过程</h3>
+                    <button class="close-modal" onclick="closeThinkingModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div id="thinkingContent" class="thinking-content"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
