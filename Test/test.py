@@ -147,44 +147,62 @@ def intialize_model():
     ]
     # print(messages)
 #%% 测试用户画像函数
-# test_profile = get_profile(user_id)
-# # print(f"用户 {user_id} 的画像信息: {test_profile}")
-# extracted_info = extract_profile_info(test_profile)
-# formatted_profile = format_profile_for_prompt(extracted_info)
-# print(f"格式化后的用户画像信息:\n{formatted_profile}")
+intialize_memo_base()
+test_profile = get_profile(user_id)
+print(f"用户 {user_id} 的画像信息: {test_profile}")
+extracted_info = extract_profile_info(test_profile)
+# print(f"提取的用户画像信息: {extracted_info}")
+formatted_profile = format_profile_for_prompt(extracted_info)
+print(f"格式化后的用户画像信息:\n{formatted_profile}")
 # 初始化模型
 
 #%% 测试RAG
-# """
-# 通过HTTP POST请求访问RAG服务以检索知识。
+"""
+通过HTTP POST请求访问RAG服务以检索知识。
 
-# Args:
-#     query_text (str): 用户的查询问题。
+Args:
+    query_text (str): 用户的查询问题。
 
-# Returns:
-#     str: 从RAG服务获取的知识库文本。
-# """
-# url = "http://localhost:9621/query"
-# headers = {"Content-Type": "application/json"}
-# chunk_top_k = os.environ.get("CHUNK_TOP_K")  # 从环境变量获取 chunk_top_k，默认为 5
-# data = {"query": "咨询创新大赛", "mode": "naive", "only_need_context": True, "chunk_top_k": chunk_top_k}
+Returns:
+    str: 从RAG服务获取的知识库文本。
+"""
+url = "http://localhost:9621/query"
+headers = {"Content-Type": "application/json"}
+chunk_top_k = os.environ.get("CHUNK_TOP_K")  # 从环境变量获取 chunk_top_k，默认为 5
+data = {"query": "员工硕士的占比是多少？", "mode": "hybrid", "only_need_context": True, "chunk_top_k": chunk_top_k}
 
-# try:
-#     response = requests.post(url, headers=headers, data=json.dumps(data))
-#     response.raise_for_status()  # 如果状态码不是 2xx，则会抛出异常
-#     # 假设响应是一个JSON，其中包含一个或多个文档，我们将它们连接成一个字符串
-#     # 您可能需要根据实际的返回格式调整此部分
-#     results = response.json()
-#     # 示例处理：将返回的JSON直接转换为格式化的字符串
-#     # 或者，如果返回的是文档列表，例如: `[{"content": "..."}, ...]`
-#     # 可以用: `"\n".join(item.get("content", "") for item in results)`
-#     json.dumps(results, ensure_ascii=False, indent=2)
-#     print("知识库返回内容：")
-#     print(results)
-# except requests.exceptions.RequestException as e:
-#     print(f"错误：调用RAG服务失败: {e}")
-# except json.JSONDecodeError:
-#     print("错误：解析RAG服务响应失败。")
+try:
+    response = requests.post(url, headers=headers, data=json.dumps(data))
+    response.raise_for_status()  # 如果状态码不是 2xx，则会抛出异常
+    # 假设响应是一个JSON，其中包含一个或多个文档，我们将它们连接成一个字符串
+    # 您可能需要根据实际的返回格式调整此部分
+    results = response.json()
+            # 提取Document Chunks部分
+    if 'response' in results:
+        response_text = results['response']
+        dc_pattern = r'-----Document Chunks\(DC\)-----\s*\n\s*```json\s*(.*?)\s*```'
+        dc_match = re.search(dc_pattern, response_text, re.DOTALL)
+        
+        if dc_match:
+            document_chunks = dc_match.group(1)
+            try:
+                # 尝试解析JSON，确保它是有效的JSON
+                chunks_json = json.loads(document_chunks)
+                # 返回提取出的Document Chunks部分
+                json.dumps(chunks_json, ensure_ascii=False, indent=2)
+                print("知识库返回内容：")
+                print(chunks_json)
+            except json.JSONDecodeError:
+                print("警告：无法解析Document Chunks部分的JSON")
+    # 示例处理：将返回的JSON直接转换为格式化的字符串
+    # 或者，如果返回的是文档列表，例如: `[{"content": "..."}, ...]`
+    # 可以用: `"\n".join(item.get("content", "") for item in results)`
+    json.dumps(results, ensure_ascii=False, indent=2)
+
+except requests.exceptions.RequestException as e:
+    print(f"错误：调用RAG服务失败: {e}")
+except json.JSONDecodeError:
+    print("错误：解析RAG服务响应失败。")
 
 #%% 主函数
 def main():

@@ -42,7 +42,7 @@ export $(cat .env | xargs)
 
 echo "🔧 启动后端服务..."
 # 在后台启动后端服务
-python main.py &
+python table.py &
 BACKEND_PID=$!
 
 # 等待后端启动
